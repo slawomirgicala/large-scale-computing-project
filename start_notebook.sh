@@ -3,7 +3,18 @@
 # This script submits a Slurm job to get resources and
 # start a Jupyter notebook on those resources.
 
-jobid=$(sbatch --parsable notebook_job.sh)
+module purge
+#module load plgrid/tools/python/3.4.2
+module load plgrid/tools/gcc/4.8.0
+module load plgrid/tools/openmpi/1.6.5-gnu-4.8.0-ib
+pip3 install --user --upgrade pip
+pip3 install --user virtualenv
+python3.4 -m venv env
+source env/bin/activate
+pip3 install --user jupyter
+
+uid=$(id -u $(whoami))
+jobid=$(sbatch --parsable notebook_job.sh --uid=$uid)
 workdir=$(squeue --format=%Z --noheader -j $jobid)
 logfile=$workdir/jupyter-$jobid.log
 errfile=$workdir/jupyter-$jobid.err
@@ -12,7 +23,7 @@ echo -n "Waiting for notebook to start  "
 
 # wait for the logfile to appear and be not-empty
 sp="/-\|"
-while [ ! -s $logfile ] 
+while [ ! -s $logfile ]
 do
     printf "\b${sp:i++%${#sp}:1}"
     sleep 1;
@@ -41,4 +52,3 @@ fi
 
 echo "Close the notebook with:"
 echo "    scancel $jobid"
-

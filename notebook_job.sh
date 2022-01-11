@@ -3,10 +3,11 @@
 #SBATCH --job-name=jupyter_notebook_launch
 #SBATCH --output=jupyter-%j.log 
 #SBATCH --error=jupyter-%j.err
+#SBATCH --nodes 1
+#SBATCH --ntasks-per-node 12
+#SBATCH --time 0:50:00
 
 # Load module with python and jupyter notebook
-module purge
-module load plgrid/tools/python-intel/3.5.3
 
 # Get available port for notebook and tunneling to your local machine
 NOTEBOOK_PORT=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()');
